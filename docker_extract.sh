@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ensure data subdirectory exists
-mkdir -p /data/polylines/;
+mkdir -p /data/polylines/
 mkdir -p /data/valhalla/valhalla_tiles
 
 # enumerate a list of PBF files
@@ -16,11 +16,7 @@ if [[ ${#PBF_FILES[@]} -eq 0 ]]; then
 fi
 
 # truncate polylines file
-echo '' > /data/polylines/extract.0sv;
-
-# create empty sqlite db for valhalla
-touch /data/valhalla/valhalla_tiles/timezones.sqlite
-touch /data/valhalla/valhalla_tiles/admins.sqlite
+echo '' > /data/polylines/extract.0sv
 
 # iterate over all PBF files in the osm directory
 for PBF_FILE in "${PBF_FILES[@]}"; do
@@ -30,6 +26,7 @@ for PBF_FILE in "${PBF_FILES[@]}"; do
 
   if [[ -n $(find "${PBF_FILE}" -maxdepth 1 -size +1G) ]]; then
     # Use Valhalla to generate polylines
+    echo 'building polyline data with valhalla...'
     valhalla_build_tiles -c valhalla.json /data/openstreetmap/*.osm.pbf;
     find /data/valhalla/valhalla_tiles | sort -n | tar cf /data/valhalla/valhalla_tiles.tar --no-recursion -T -
     valhalla_export_edges --config valhalla.json >> /data/polylines/extract.0sv;

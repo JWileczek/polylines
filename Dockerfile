@@ -1,5 +1,14 @@
 # base image
-FROM pelias/baseimage
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y locales apt-utils iputils-ping curl wget git-core autoconf automake libtool pkg-config python
+
+RUN apt-get install -y software-properties-common && \
+    apt-get update
+
+# install nodejs
+ENV NODE_VERSION='10.14.0'
+RUN git clone 'https://github.com/isaacs/nave.git' /code/nave && /code/nave/nave.sh 'usemain' "${NODE_VERSION}" && rm -rf ~/.nave /code/nave
 
 # install go 1.10
 ENV GOPATH=/usr/src/.go
@@ -39,6 +48,10 @@ ADD . ${WORKDIR}
 
 # run tests
 RUN npm test
+
+# get ready for pelias config with an empty file
+ENV PELIAS_CONFIG '/code/pelias.json'
+RUN echo '{}' > '/code/pelias.json'
 
 USER pelias
 
